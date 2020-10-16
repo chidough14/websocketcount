@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <!-- <pre id="messages" style="height: 400px; overflow: scroll"></pre>
+        <input type="text" id="messageBox" placeholder="Type your message here" style="display: block; width: 100%; margin-bottom: 10px; padding: 10px;" /> -->
+        <input type="number" id="messageBox" placeholder="Enter Number" style="display: block; width: 100%; margin-bottom: 10px; padding: 10px;" />
+        <p id="message_sent"></p>
+        <button id="send" title="Send Message!">Send Message</button> 
+    </div>
+
+
+    <script>
+        (function() {
+          const sendBtn = document.querySelector('#send');
+          const messageBox = document.querySelector('#messageBox');
+      
+          let ws;
+      
+          function showMessage(message) {
+            //console.count(message)
+            messageBox.value = '';
+            
+            setInterval(() => {
+              console.count(message) 
+            }, 5000)
+          }
+      
+          function init() {
+            if (ws) {
+              ws.onerror = ws.onopen = ws.onclose = null;
+              ws.close();
+            }
+      
+            ws = new WebSocket('ws://localhost:8080');
+            ws.onopen = () => {
+              console.log('Connection opened!');
+
+              //ws.send("Another user Connects");
+
+              /* setInterval(function() {
+                ws.send("Another user Connects");
+              }, 10); */
+              
+            }
+            //ws.onmessage = ({ data }) => showMessage(data);
+            ws.addEventListener('message', function({data}) {
+              showMessage(data);
+            })
+
+            ws.onclose = function() {
+              ws = null;
+            }
+          }
+      
+          sendBtn.onclick = function() {
+            if (!ws) {
+              showMessage("No WebSocket connection :(");
+              return ;
+            }
+
+            ws.send(messageBox.value);
+          }
+      
+          init();
+        })();
+      </script>
+
+      
+</body>
+</html>
