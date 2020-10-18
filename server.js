@@ -15,11 +15,10 @@ wss.on('connection', function connection(ws) {
   ws.on('message', function incoming(data) {
     wss.clients.forEach(function each(client) {
       if (client.readyState === WebSocket.OPEN) {
-
-          const count = Math.floor(1000 / data)
+        //console.log(data)
 
           setInterval(() => {
-            client.send(``);
+            client.send(`hello`);
             //console.log(data)
           }, data)
 
@@ -27,6 +26,17 @@ wss.on('connection', function connection(ws) {
                 client.send(`${count} messages/second received`);
                 //console.log(data)
             }, 5000) */
+       
+      }
+    });
+  });
+
+  ws.on('count_msg', function incoming(data) {
+    wss.clients.forEach(function each(client) {
+      if (client.readyState === WebSocket.OPEN) {
+        console.log(data)
+
+         
        
       }
     });

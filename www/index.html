@@ -9,7 +9,7 @@
     <div>
         <!-- <pre id="messages" style="height: 400px; overflow: scroll"></pre>
         <input type="text" id="messageBox" placeholder="Type your message here" style="display: block; width: 100%; margin-bottom: 10px; padding: 10px;" /> -->
-        <input type="number" id="messageBox" placeholder="Enter Number" style="display: block; width: 100%; margin-bottom: 10px; padding: 10px;" />
+        <input type="number" id="messageBox" placeholder="Enter Number Of MiliSeconds" style="display: block; width: 100%; margin-bottom: 10px; padding: 10px;" />
         <p id="message_sent"></p>
         <button id="send" title="Send Message!">Send Message</button> 
     </div>
@@ -21,14 +21,13 @@
           const messageBox = document.querySelector('#messageBox');
       
           let ws;
+
+          let count = 0
       
           function showMessage(message) {
             //console.count(message)
             messageBox.value = '';
-            
-            setInterval(() => {
-              console.count(message) 
-            }, 5000)
+            //count++
           }
       
           function init() {
@@ -40,24 +39,21 @@
             ws = new WebSocket('ws://localhost:8080');
             ws.onopen = () => {
               console.log('Connection opened!');
-
-              //ws.send("Another user Connects");
-
-              /* setInterval(function() {
-                ws.send("Another user Connects");
-              }, 10); */
-              
             }
             //ws.onmessage = ({ data }) => showMessage(data);
-            ws.addEventListener('message', function({data}) {
-              showMessage(data);
-            })
+          /*  ws.addEventListener('message', function({data}) {
+             count++
+           }) */
+
+             
 
             ws.onclose = function() {
               ws = null;
             }
           }
-      
+
+
+
           sendBtn.onclick = function() {
             if (!ws) {
               showMessage("No WebSocket connection :(");
@@ -65,6 +61,21 @@
             }
 
             ws.send(messageBox.value);
+
+            ws.addEventListener('message', function({data}) {
+             count++
+            })
+
+           
+
+            setInterval(() => {
+                console.log(`${count} messages received`)
+                //ws.send(count)
+                count = 0
+
+                
+                
+            }, 5000);
           }
       
           init();
