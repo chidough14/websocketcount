@@ -4,48 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+    <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-axistitle@0.0.7/dist/chartist-plugin-axistitle.min.js"></script>
+    <style>
+      
+    </style>
 </head>
 <body>
     <div>
-        <!-- <pre id="messages" style="height: 400px; overflow: scroll"></pre>
-        <input type="text" id="messageBox" placeholder="Type your message here" style="display: block; width: 100%; margin-bottom: 10px; padding: 10px;" /> -->
-        <input type="number" id="messageBox" placeholder="Enter Number Of MiliSeconds" style="display: block; width: 100%; margin-bottom: 10px; padding: 10px;" />
-        <p id="message_sent"></p>
+        <input type="number" id="messageBox" placeholder="Enter Number Of MiliSeconds" style="display: block; width: 50%; margin-bottom: 10px; padding: 10px;" /><br>
+        
+        <textarea name="messageLoad" id="messageLoad" cols="60" rows="10"></textarea><br>
         <button id="send" title="Send Message!">Send Message</button> 
+        <button id="clear" title="Clear Message!">Reset</button> 
+
+        <div class="ct-chart ct-perfect-fourth" style="height: 600px; width:80%;" data-x-axis="X axis label" data-y-axis="Y axis label"></div>
     </div>
 
 
     <script>
         (function() {
           const sendBtn = document.querySelector('#send');
-          const messageBox = document.querySelector('#messageBox');
+          const clearbtn = document.querySelector('#clear')
+          const messageBox = document.getElementById('messageBox')
+          const messageLoad = document.getElementById('messageLoad')
       
           let ws;
 
           let count = 0
-      
-          function showMessage(message) {
-            //console.count(message)
-            messageBox.value = '';
-            //count++
-          }
-      
+
           function init() {
             if (ws) {
               ws.onerror = ws.onopen = ws.onclose = null;
               ws.close();
             }
       
-            ws = new WebSocket('ws://localhost:8080');
+            ws = new WebSocket('ws://localhost:8888');
             ws.onopen = () => {
               console.log('Connection opened!');
             }
-            //ws.onmessage = ({ data }) => showMessage(data);
-          /*  ws.addEventListener('message', function({data}) {
-             count++
-           }) */
-
-             
 
             ws.onclose = function() {
               ws = null;
@@ -60,27 +58,81 @@
               return ;
             }
 
-            ws.send(messageBox.value);
+            ws.send(JSON.stringify({time: parseInt(messageBox.value), msg: messageLoad.value}));
 
             ws.addEventListener('message', function({data}) {
-             count++
+               count++
             })
 
-           
+            var data = {
+             
+              labels: [5],
+              
+              series : [[]]
+            };
+
+           var i = 0
 
             setInterval(() => {
-                console.log(`${count} messages received`)
-                //ws.send(count)
-                count = 0
 
-                
+              console.log(count)
+                data.series[0].push(count)
+                data.labels.push(data.labels[i] + 5)
+
+                if(i == (data.labels.length - 1)) {
+                  i = 0
+                } else {
+                  i++
+                }
+
+                new Chartist.Line('.ct-chart', data, {
+                  chartPadding: {
+                    top: 20,
+                    right: 0,
+                    bottom: 20,
+                    left: 20
+                  },
+                  plugins: [
+                    Chartist.plugins.ctAxisTitle({
+                          axisX: {
+                            axisTitle: "Time (seconds)",
+                            axisClass: "ct-axis-title",
+                            offset: {
+                              x: 0,
+                              y: 50
+                            },
+                            textAnchor: "middle"
+                          },
+                          axisY: {
+                            axisTitle: "Messages Per 5 seconds",
+                            axisClass: "ct-axis-title",
+                            offset: {
+                              x: 0,
+                              y: 0
+                            },
+                            flipTitle: false
+                          }
+                        })
+                  ]
+               });
+
+                count = 0
                 
             }, 5000);
+
+           
+          }
+
+          clearbtn.onclick = function() {
+            messageBox.value = '';
+            messageLoad.value = '';
           }
       
           init();
         })();
       </script>
+
+     
 
       
 </body>
